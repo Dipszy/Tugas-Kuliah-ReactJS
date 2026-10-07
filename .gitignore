@@ -23,8 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Laporan & Screenshots (tidak di-push)
-screenshots/
+# Laporan (tidak di-push)
 *.pdf
 Laporan*
 scripts/
