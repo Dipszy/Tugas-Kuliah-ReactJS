@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-function Footer({ setActivePage }) {
+function Footer() {
   return (
     <footer className="bg-dark text-white pt-5 pb-4 mt-auto">
       <div className="container">
@@ -33,36 +34,33 @@ function Footer({ setActivePage }) {
             </div>
           </div>
 
-          {/* Col 2: Navigation Links */}
+          {/* Col 2: Navigation Links using React Router Link */}
           <div className="col-lg-2 col-md-6 col-6">
             <h6 className="fw-bold text-uppercase mb-3 text-white">Halaman Utama</h6>
             <ul className="list-unstyled small text-white-50 mb-0">
               <li className="mb-2">
-                <a 
-                  href="#home" 
+                <Link 
+                  to="/" 
                   className="text-white-50 text-decoration-none hover-white"
-                  onClick={(e) => { e.preventDefault(); setActivePage('home'); window.scrollTo(0, 0); }}
                 >
                   <i className="bi bi-chevron-right me-1 small text-primary"></i> Beranda / Home
-                </a>
+                </Link>
               </li>
               <li className="mb-2">
-                <a 
-                  href="#team" 
+                <Link 
+                  to="/team" 
                   className="text-white-50 text-decoration-none hover-white"
-                  onClick={(e) => { e.preventDefault(); setActivePage('team'); window.scrollTo(0, 0); }}
                 >
                   <i className="bi bi-chevron-right me-1 small text-primary"></i> Tim Kami / Team
-                </a>
+                </Link>
               </li>
               <li className="mb-2">
-                <a 
-                  href="#contact" 
+                <Link 
+                  to="/contact" 
                   className="text-white-50 text-decoration-none hover-white"
-                  onClick={(e) => { e.preventDefault(); setActivePage('contact'); window.scrollTo(0, 0); }}
                 >
                   <i className="bi bi-chevron-right me-1 small text-primary"></i> Kontak / Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -106,7 +104,7 @@ function Footer({ setActivePage }) {
             &copy; {new Date().getFullYear()} BookStore. Hak Cipta Dilindungi Undang-Undang.
           </div>
           <div className="mt-2 mt-md-0">
-            Dibuat dengan <i className="bi bi-heart-fill text-danger mx-1"></i> menggunakan React & Bootstrap 5
+            Dibuat dengan <i className="bi bi-heart-fill text-danger mx-1"></i> menggunakan React Router & Bootstrap 5
           </div>
         </div>
       </div>

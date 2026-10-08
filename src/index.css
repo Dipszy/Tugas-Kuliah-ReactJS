@@ -84,8 +84,49 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
-.nav-link.active-tab {
+/* Enhanced Navigation Styling for React Router NavLink */
+.nav-link-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px !important;
+  border-radius: 9999px;
+  color: #475569 !important;
+  font-weight: 500;
+  transition: all 0.25s ease-in-out;
+  text-decoration: none;
+}
+
+.nav-link-custom:hover {
   color: #2563eb !important;
-  font-weight: 700 !important;
-  border-bottom: 2px solid #2563eb;
+  background-color: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.nav-link-custom.active {
+  color: #2563eb !important;
+  background-color: rgba(37, 99, 235, 0.1) !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+}
+
+.nav-link-custom.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 3px;
+  background-color: #2563eb;
+  border-radius: 9999px;
+}
+
+.nav-link-custom i {
+  transition: transform 0.2s ease;
+}
+
+.nav-link-custom:hover i,
+.nav-link-custom.active i {
+  transform: scale(1.15);
 }

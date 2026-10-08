@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-function Home({ setActivePage }) {
+function Home() {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
 
   const categories = ['Semua', 'Fiksi & Sastra', 'Teknologi & Koding', 'Self Improvement', 'Bisnis & Finansial'];
@@ -157,13 +158,12 @@ function Home({ setActivePage }) {
                 <a href="#katalog" className="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
                   <i className="bi bi-bag-check me-2"></i> Belanja Sekarang
                 </a>
-                <button 
-                  type="button" 
+                <Link 
+                  to="/team" 
                   className="btn btn-outline-secondary btn-lg px-4 rounded-pill"
-                  onClick={() => setActivePage('team')}
                 >
                   <i className="bi bi-people me-2"></i> Kenali Tim Kami
-                </button>
+                </Link>
               </div>
 
               {/* Quick stats */}
