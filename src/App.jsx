@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
 import Home from './components/Home';
+import Book from './components/Book';
 import Team from './components/Team';
 import Contact from './components/Contact';
 import NotFound from './components/NotFound';
@@ -14,6 +15,9 @@ function App() {
         <Route path="/" element={<RootLayout />}>
           {/* Index Route: Halaman Beranda (Home) */}
           <Route index element={<Home />} />
+
+          {/* Halaman Katalog Buku (Book) */}
+          <Route path="book" element={<Book />} />
 
           {/* Halaman Informasi & Tim (Team) */}
           <Route path="team" element={<Team />} />

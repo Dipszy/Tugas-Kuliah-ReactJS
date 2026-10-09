@@ -48,6 +48,14 @@ function Footer() {
               </li>
               <li className="mb-2">
                 <Link 
+                  to="/book" 
+                  className="text-white-50 text-decoration-none hover-white"
+                >
+                  <i className="bi bi-chevron-right me-1 small text-primary"></i> Katalog Buku / Book
+                </Link>
+              </li>
+              <li className="mb-2">
+                <Link 
                   to="/team" 
                   className="text-white-50 text-decoration-none hover-white"
                 >

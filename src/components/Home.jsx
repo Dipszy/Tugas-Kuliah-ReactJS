@@ -1,89 +1,57 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
+import defaultBooks from '../utils/books';
 
 function Home() {
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
+  const context = useOutletContext();
+  const books = context?.books || defaultBooks;
+  const addBook = context?.addBook;
 
-  const categories = ['Semua', 'Fiksi & Sastra', 'Teknologi & Koding', 'Self Improvement', 'Bisnis & Finansial'];
+  // State Hooks untuk Modal Tambah Data
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    author: '',
+    year: new Date().getFullYear(),
+    description: '',
+    image: ''
+  });
 
-  const books = [
-    {
-      id: 1,
-      title: 'Atomic Habits: Perubahan Kecil Hasil Luar Biasa',
-      author: 'James Clear',
-      category: 'Self Improvement',
-      price: 'Rp 98.000',
-      originalPrice: 'Rp 120.000',
-      rating: 5.0,
-      sold: '1.2k',
-      badge: 'Best Seller',
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 2,
-      title: 'Mastering Modern React & TypeScript',
-      author: 'Dan Abramov & Tim',
-      category: 'Teknologi & Koding',
-      price: 'Rp 145.000',
-      originalPrice: 'Rp 180.000',
-      rating: 4.9,
-      sold: '850',
-      badge: 'Populer',
-      image: 'https://images.unsplash.com/photo-1532012164546-f432f2e3777f?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 3,
-      title: 'Filosofi Teras: Hidup Tenang Tanpa Cemas',
-      author: 'Henry Manampiring',
-      category: 'Self Improvement',
-      price: 'Rp 88.000',
-      originalPrice: 'Rp 110.000',
-      rating: 4.9,
-      sold: '2.5k',
-      badge: 'Top Pick',
-      image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 4,
-      title: 'Bumi Manusia: Tetralogi Buru',
-      author: 'Pramoedya Ananta Toer',
-      category: 'Fiksi & Sastra',
-      price: 'Rp 115.000',
-      originalPrice: 'Rp 135.000',
-      rating: 5.0,
-      sold: '3.1k',
-      badge: 'Klasik',
-      image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 5,
-      title: 'The Psychology of Money',
-      author: 'Morgan Housel',
-      category: 'Bisnis & Finansial',
-      price: 'Rp 85.000',
-      originalPrice: 'Rp 105.000',
-      rating: 4.8,
-      sold: '1.9k',
-      badge: 'Best Seller',
-      image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      id: 6,
-      title: 'Clean Code: Panduan Pengembang Profesional',
-      author: 'Robert C. Martin',
-      category: 'Teknologi & Koding',
-      price: 'Rp 160.000',
-      originalPrice: 'Rp 200.000',
-      rating: 4.9,
-      sold: '720',
-      badge: 'Hot Item',
-      image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80'
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.title || !formData.author) {
+      alert('Judul dan Penulis buku wajib diisi!');
+      return;
     }
-  ];
 
-  const filteredBooks = selectedCategory === 'Semua' 
-    ? books 
-    : books.filter(b => b.category === selectedCategory);
+    const newBook = {
+      id: Date.now(),
+      title: formData.title,
+      author: formData.author,
+      year: parseInt(formData.year) || new Date().getFullYear(),
+      description: formData.description || 'Buku pilihan terbaru dalam koleksi BookStore.',
+      image: formData.image || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'
+    };
+
+    if (addBook) {
+      addBook(newBook);
+    }
+
+    setFormData({
+      title: '',
+      author: '',
+      year: new Date().getFullYear(),
+      description: '',
+      image: ''
+    });
+    setShowModal(false);
+    alert('Buku berhasil ditambahkan menggunakan Hooks!');
+  };
 
   const features = [
     {
@@ -150,14 +118,14 @@ function Home() {
                 Jelajahi Inspirasi Baru Lewat <span className="text-primary">Buku Pilihan</span>
               </h1>
               <p className="lead text-muted mb-4">
-                Toko buku terlengkap dengan ribuan koleksi novel, literatur akademik, teknologi, 
-                hingga pengembangan diri. Kembangkan potensimu bersama kami setiap hari.
+                Toko buku terlengkap dengan ribuan koleksi teknologi, pemrograman, pengembangan diri, 
+                hingga literatur akademik. Kembangkan potensimu bersama kami setiap hari.
               </p>
               
               <div className="d-flex flex-wrap gap-3 mb-4">
-                <a href="#katalog" className="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
-                  <i className="bi bi-bag-check me-2"></i> Belanja Sekarang
-                </a>
+                <Link to="/book" className="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
+                  <i className="bi bi-book-half me-2"></i> Lihat Katalog Buku
+                </Link>
                 <Link 
                   to="/team" 
                   className="btn btn-outline-secondary btn-lg px-4 rounded-pill"
@@ -169,7 +137,7 @@ function Home() {
               {/* Quick stats */}
               <div className="row pt-3 border-top g-3 text-center text-sm-start">
                 <div className="col-4">
-                  <h4 className="fw-bold mb-0 text-primary">15K+</h4>
+                  <h4 className="fw-bold mb-0 text-primary">{books.length}+</h4>
                   <small className="text-muted">Koleksi Buku</small>
                 </div>
                 <div className="col-4">
@@ -236,63 +204,70 @@ function Home() {
         </div>
       </section>
 
-      {/* 3. BOOK SHOWCASE / CATALOG */}
+      {/* 3. BOOK SHOWCASE / CATALOG (MAP DARI DATA UTILS/BOOKS.JS) */}
       <section className="py-5" id="katalog">
         <div className="container">
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
             <div>
-              <span className="text-primary fw-bold text-uppercase small">Koleksi Terpopuler</span>
-              <h2 className="fw-bold mt-1 mb-0">Buku Rekomendasi Pekan Ini</h2>
+              <span className="text-primary fw-bold text-uppercase small">Koleksi Buku Utama</span>
+              <h2 className="fw-bold mt-1 mb-0">Daftar Buku Terkini</h2>
             </div>
             
-            {/* Category Filter Pills */}
+            {/* Action Buttons: Tambah Buku (Hooks) & Lihat Semua */}
             <div className="d-flex flex-wrap gap-2">
-              {categories.map((cat, idx) => (
-                <button
-                  key={idx}
-                  className={`btn btn-sm rounded-pill px-3 py-2 fw-medium ${selectedCategory === cat ? 'btn-primary' : 'btn-outline-secondary'}`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
+              <button 
+                type="button" 
+                className="btn btn-outline-primary rounded-pill px-3 py-2 fw-medium d-flex align-items-center gap-2"
+                onClick={() => setShowModal(true)}
+              >
+                <i className="bi bi-plus-circle"></i> Tambah Buku Baru
+              </button>
+              <Link to="/book" className="btn btn-primary rounded-pill px-3 py-2 fw-medium">
+                Lihat Semua Buku ({books.length})
+              </Link>
             </div>
           </div>
 
-          {/* Books Grid */}
+          {/* Books Grid Using .map() */}
           <div className="row g-4">
-            {filteredBooks.map((book) => (
+            {books.slice(0, 6).map((book) => (
               <div className="col-sm-6 col-lg-4" key={book.id}>
-                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift bg-white">
+                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift bg-white d-flex flex-column">
                   <div className="position-relative">
                     <img 
                       src={book.image} 
                       className="card-img-top book-cover" 
-                      alt={book.title} 
+                      alt={book.title}
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+                      }}
                     />
-                    <span className="position-absolute top-0 start-0 m-3 badge bg-primary rounded-pill px-3 py-2 shadow-sm">
-                      {book.badge}
-                    </span>
-                    <span className="position-absolute bottom-0 end-0 m-3 badge bg-dark bg-opacity-75 rounded-pill px-2 py-1">
-                      <i className="bi bi-star-fill text-warning me-1"></i> {book.rating} ({book.sold})
+                    <span className="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 rounded-pill px-3 py-2">
+                      Tahun {book.year}
                     </span>
                   </div>
 
                   <div className="card-body d-flex flex-column p-4">
-                    <span className="text-muted small fw-semibold text-uppercase mb-1">{book.category}</span>
-                    <h5 className="card-title fw-bold text-dark mb-1">{book.title}</h5>
-                    <p className="text-muted small mb-3">Penulis: <span className="fw-semibold text-dark">{book.author}</span></p>
+                    <span className="text-muted small fw-semibold text-uppercase mb-1">
+                      <i className="bi bi-person me-1"></i> {book.author}
+                    </span>
+                    <h5 className="card-title fw-bold text-dark mb-2">{book.title}</h5>
+                    <p className="card-text text-muted small flex-grow-1 mb-4">
+                      {book.description}
+                    </p>
 
                     <div className="mt-auto pt-3 border-top d-flex align-items-center justify-content-between">
-                      <div>
-                        <div className="text-danger fw-bold fs-5">{book.price}</div>
-                        <small className="text-muted text-decoration-line-through">{book.originalPrice}</small>
-                      </div>
-                      <button 
-                        className="btn btn-primary rounded-pill px-3"
-                        onClick={() => alert(`Buku "${book.title}" berhasil dimasukkan ke keranjang belanja!`)}
+                      <Link 
+                        to="/book" 
+                        className="btn btn-outline-secondary btn-sm rounded-pill px-3"
                       >
-                        <i className="bi bi-cart-plus me-1"></i> Beli
+                        <i className="bi bi-eye me-1"></i> Lihat Detail
+                      </Link>
+                      <button 
+                        className="btn btn-primary btn-sm rounded-pill px-3"
+                        onClick={() => alert(`Buku "${book.title}" berhasil dimasukkan ke keranjang!`)}
+                      >
+                        <i className="bi bi-cart-plus me-1"></i> Beli Buku
                       </button>
                     </div>
                   </div>
@@ -314,7 +289,7 @@ function Home() {
               <h2 className="display-5 fw-bold mb-3">Gebyar Festival Literasi 2026</h2>
               <p className="lead mb-4 text-white-50">
                 Gunakan kode voucher di atas untuk mendapatkan potongan diskon langsung Rp 50.000 
-                setiap pembelian minimal Rp 150.000. Berlaku untuk seluruh kategori buku!
+                setiap pembelian minimal Rp 150.000. Berlaku untuk seluruh koleksi buku!
               </p>
               <div className="d-flex justify-content-center gap-3">
                 <button 
@@ -370,6 +345,111 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* 6. MODAL TAMBAH BUKU (Hooks) */}
+      {showModal && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow">
+              <div className="modal-header border-bottom">
+                <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
+                  <i className="bi bi-plus-circle text-primary"></i> Tambah Data Buku Baru
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  aria-label="Close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+
+              <form onSubmit={handleFormSubmit}>
+                <div className="modal-body p-4">
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Judul Buku <span className="text-danger">*</span></label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      name="title"
+                      placeholder="Contoh: Belajar Vue.js 3 Modern"
+                      required
+                      value={formData.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="row g-2 mb-3">
+                    <div className="col-8">
+                      <label className="form-label fw-semibold">Penulis <span className="text-danger">*</span></label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="author"
+                        placeholder="Contoh: Rian Pratama"
+                        required
+                        value={formData.author}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="col-4">
+                      <label className="form-label fw-semibold">Tahun</label>
+                      <input 
+                        type="number" 
+                        className="form-control" 
+                        name="year"
+                        placeholder="2024"
+                        value={formData.year}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Deskripsi Buku</label>
+                    <textarea 
+                      className="form-control" 
+                      name="description"
+                      rows="3"
+                      placeholder="Ringkasan atau sinopsis singkat buku..."
+                      value={formData.description}
+                      onChange={handleInputChange}
+                    ></textarea>
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="form-label fw-semibold">URL Gambar Sampul (Opsional)</label>
+                    <input 
+                      type="url" 
+                      className="form-control" 
+                      name="image"
+                      placeholder="https://images.unsplash.com/..."
+                      value={formData.image}
+                      onChange={handleInputChange}
+                    />
+                    <small className="text-muted">Biarkan kosong untuk menggunakan gambar default.</small>
+                  </div>
+                </div>
+
+                <div className="modal-footer border-top bg-light rounded-bottom-4">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary rounded-pill px-4"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary rounded-pill px-4 shadow-sm"
+                  >
+                    <i className="bi bi-save me-1"></i> Simpan Buku
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

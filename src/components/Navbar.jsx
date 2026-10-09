@@ -45,6 +45,15 @@ function Navbar() {
             </li>
             <li className="nav-item">
               <NavLink 
+                to="/book" 
+                className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+                onClick={() => setIsOpen(false)}
+              >
+                <i className="bi bi-journal-bookmark me-2"></i> Book
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink 
                 to="/team" 
                 className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
                 onClick={() => setIsOpen(false)}
