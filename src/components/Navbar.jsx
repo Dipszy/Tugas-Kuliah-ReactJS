@@ -74,6 +74,14 @@ function Navbar() {
 
           {/* Action buttons */}
           <div className="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+            <Link 
+              to="/admin" 
+              className="btn btn-outline-dark rounded-pill px-3 py-2 d-flex align-items-center gap-1 shadow-sm"
+              title="Masuk ke Panel Admin"
+            >
+              <i className="bi bi-shield-lock-fill text-primary"></i>
+              <span className="fw-semibold small">Admin</span>
+            </Link>
             <button className="btn btn-light position-relative rounded-pill px-3 py-2 border">
               <i className="bi bi-cart3 me-1"></i> Keranjang
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

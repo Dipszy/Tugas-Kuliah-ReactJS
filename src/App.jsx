@@ -1,33 +1,41 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
+import AdminLayout from './layouts/AdminLayout';
 import Home from './components/Home';
 import Book from './components/Book';
 import Team from './components/Team';
 import Contact from './components/Contact';
 import NotFound from './components/NotFound';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageGenres from './pages/admin/ManageGenres';
+import ManageAuthors from './pages/admin/ManageAuthors';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Layout Route: Mengelompokkan elemen navigasi (Navbar, Outlet, Footer) */}
+        {/* =========================================
+            1. PUBLIC STOREFRONT ROUTES (RootLayout)
+           ========================================= */}
         <Route path="/" element={<RootLayout />}>
-          {/* Index Route: Halaman Beranda (Home) */}
           <Route index element={<Home />} />
-
-          {/* Halaman Katalog Buku (Book) */}
           <Route path="book" element={<Book />} />
-
-          {/* Halaman Informasi & Tim (Team) */}
           <Route path="team" element={<Team />} />
-
-          {/* Halaman Kontak & Bantuan (Contact) */}
           <Route path="contact" element={<Contact />} />
-
-          {/* Catch-all 404: Penanganan rute yang tidak ditemukan */}
-          <Route path="*" element={<NotFound />} />
         </Route>
+
+        {/* =========================================
+            2. ADMIN PANEL ROUTES (AdminLayout)
+           ========================================= */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="genres" element={<ManageGenres />} />
+          <Route path="authors" element={<ManageAuthors />} />
+        </Route>
+
+        {/* Catch-all 404 Route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

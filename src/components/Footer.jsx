@@ -70,6 +70,14 @@ function Footer() {
                   <i className="bi bi-chevron-right me-1 small text-primary"></i> Kontak / Contact
                 </Link>
               </li>
+              <li className="mb-2">
+                <Link 
+                  to="/admin" 
+                  className="text-warning text-decoration-none hover-white fw-semibold"
+                >
+                  <i className="bi bi-shield-lock me-1 small text-warning"></i> Panel Admin
+                </Link>
+              </li>
             </ul>
           </div>
 
