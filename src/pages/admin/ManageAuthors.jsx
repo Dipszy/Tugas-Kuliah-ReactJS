@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 function ManageAuthors() {
-  const { authors, addAuthor } = useOutletContext();
+  const { authors, addAuthor, updateAuthor, deleteAuthor } = useOutletContext();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit'
   const [showModal, setShowModal] = useState(false);
-  const [successAlert, setSuccessAlert] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedAuthor, setSelectedAuthor] = useState(null);
+  const [alertInfo, setAlertInfo] = useState({ show: false, message: '', type: 'success' });
 
-  // Form State for creating new author
+  // Form State for create/edit author
   const [formData, setFormData] = useState({
+    id: null,
     name: '',
     email: '',
     specialty: '',
@@ -17,6 +21,59 @@ function ManageAuthors() {
     bio: '',
     avatar: ''
   });
+
+  const showAlert = (message, type = 'success') => {
+    setAlertInfo({ show: true, message, type });
+    setTimeout(() => {
+      setAlertInfo({ show: false, message: '', type: 'success' });
+    }, 3500);
+  };
+
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setModalMode('create');
+    setFormData({
+      id: null,
+      name: '',
+      email: '',
+      specialty: '',
+      booksCount: 1,
+      bio: '',
+      avatar: ''
+    });
+    setShowModal(true);
+  };
+
+  // Open Edit Modal
+  const handleOpenEdit = (author) => {
+    setModalMode('edit');
+    setFormData({
+      id: author.id,
+      name: author.name,
+      email: author.email || '',
+      specialty: author.specialty || '',
+      booksCount: author.booksCount || 1,
+      bio: author.bio || '',
+      avatar: author.avatar || ''
+    });
+    setShowModal(true);
+  };
+
+  // Open Delete Confirmation Modal
+  const handleOpenDelete = (author) => {
+    setSelectedAuthor(author);
+    setShowDeleteModal(true);
+  };
+
+  // Confirm Delete Action
+  const handleConfirmDelete = () => {
+    if (selectedAuthor) {
+      deleteAuthor(selectedAuthor.id);
+      setShowDeleteModal(false);
+      showAlert(`Author "${selectedAuthor.name}" berhasil dihapus dari sistem!`, 'danger');
+      setSelectedAuthor(null);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,32 +90,36 @@ function ManageAuthors() {
       return;
     }
 
-    const newAuthor = {
-      id: Date.now(),
-      name: formData.name.trim(),
-      email: formData.email.trim() || `${formData.name.toLowerCase().replace(/\s+/g, '.')}@penulis.id`,
-      specialty: formData.specialty.trim() || 'Penulis Umum & Fiksi',
-      booksCount: parseInt(formData.booksCount, 10) || 1,
-      bio: formData.bio.trim() || 'Penulis aktif yang telah menerbitkan karya-karya bermutu bagi pembaca.',
-      avatar:
-        formData.avatar.trim() ||
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'
-    };
+    if (modalMode === 'create') {
+      const newAuthor = {
+        id: Date.now(),
+        name: formData.name.trim(),
+        email: formData.email.trim() || `${formData.name.toLowerCase().replace(/\s+/g, '.')}@penulis.id`,
+        specialty: formData.specialty.trim() || 'Penulis Umum & Fiksi',
+        booksCount: parseInt(formData.booksCount, 10) || 1,
+        bio: formData.bio.trim() || 'Penulis aktif yang telah menerbitkan karya-karya bermutu bagi pembaca.',
+        avatar:
+          formData.avatar.trim() ||
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'
+      };
+      addAuthor(newAuthor);
+      showAlert(`Author "${newAuthor.name}" berhasil ditambahkan!`, 'success');
+    } else {
+      // Edit / Update mode
+      const updated = {
+        id: formData.id,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        specialty: formData.specialty.trim(),
+        booksCount: parseInt(formData.booksCount, 10) || 1,
+        bio: formData.bio.trim(),
+        avatar: formData.avatar.trim()
+      };
+      updateAuthor(updated);
+      showAlert(`Data author "${updated.name}" berhasil diperbarui!`, 'info');
+    }
 
-    addAuthor(newAuthor);
-
-    // Reset & close
-    setFormData({
-      name: '',
-      email: '',
-      specialty: '',
-      booksCount: 1,
-      bio: '',
-      avatar: ''
-    });
     setShowModal(false);
-    setSuccessAlert(true);
-    setTimeout(() => setSuccessAlert(false), 3000);
   };
 
   // Filter authors based on search
@@ -77,13 +138,13 @@ function ManageAuthors() {
           <div>
             <div className="d-flex align-items-center gap-2 mb-1">
               <span className="badge bg-success-subtle text-success rounded-pill px-3 py-1 fw-semibold small">
-                Master Data
+                CRUD Author Master
               </span>
               <span className="text-muted small">Total: {authors.length} Penulis</span>
             </div>
             <h3 className="fw-bold text-dark mb-1">Manajemen Author (Penulis)</h3>
             <p className="text-muted mb-0 small">
-              Lihat (Read) profil seluruh pengarang buku dan daftarkan (Create) author baru ke sistem.
+              Kelola data pengarang buku secara terpadu: <strong>Create</strong>, <strong>Read</strong>, <strong>Update</strong>, dan <strong>Delete</strong>.
             </p>
           </div>
 
@@ -91,7 +152,7 @@ function ManageAuthors() {
             <button
               type="button"
               className="btn btn-success rounded-pill px-4 shadow-sm d-flex align-items-center gap-2"
-              onClick={() => setShowModal(true)}
+              onClick={handleOpenCreate}
             >
               <i className="bi bi-person-plus-fill"></i>
               <span>Tambah Author Baru</span>
@@ -100,16 +161,29 @@ function ManageAuthors() {
         </div>
       </div>
 
-      {/* Success Notification Alert */}
-      {successAlert && (
-        <div className="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+      {/* Alert Notification */}
+      {alertInfo.show && (
+        <div
+          className={`alert alert-${alertInfo.type} alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4`}
+          role="alert"
+        >
           <div className="d-flex align-items-center gap-2">
-            <i className="bi bi-check-circle-fill fs-5 text-success"></i>
-            <div>
-              <strong>Berhasil Menambahkan Author!</strong> Profil penulis baru telah tercatat dalam sistem admin.
-            </div>
+            <i
+              className={`bi ${
+                alertInfo.type === 'danger'
+                  ? 'bi-trash3-fill'
+                  : alertInfo.type === 'info'
+                  ? 'bi-check-circle-fill'
+                  : 'bi-check-circle-fill'
+              } fs-5`}
+            ></i>
+            <div>{alertInfo.message}</div>
           </div>
-          <button type="button" className="btn-close" onClick={() => setSuccessAlert(false)}></button>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setAlertInfo({ show: false, message: '', type: 'success' })}
+          ></button>
         </div>
       )}
 
@@ -145,7 +219,7 @@ function ManageAuthors() {
         </div>
       </div>
 
-      {/* Authors Grid (Cards View) */}
+      {/* Authors Grid (Cards View with Update & Delete Controls) */}
       <div className="row g-4 mb-4">
         {filteredAuthors.length === 0 ? (
           <div className="col-12">
@@ -189,16 +263,29 @@ function ManageAuthors() {
 
                 <p className="text-muted small flex-grow-1 mb-3">{author.bio}</p>
 
+                {/* Actions Row: Update & Delete */}
                 <div className="pt-3 border-top mt-auto d-flex justify-content-between align-items-center">
                   <span className="badge bg-light text-dark border rounded-pill px-3 py-2 small">
                     <i className="bi bi-book me-1 text-primary"></i> {author.booksCount || 0} Karya Buku
                   </span>
-                  <button
-                    className="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                    onClick={() => alert(`Profil Author: ${author.name}\nEmail: ${author.email}\nSpesialisasi: ${author.specialty}`)}
-                  >
-                    <i className="bi bi-person-lines-fill me-1"></i> Detail
-                  </button>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-sm btn-outline-success rounded-pill px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleOpenEdit(author)}
+                      title="Edit Data Author"
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-danger rounded-pill px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleOpenDelete(author)}
+                      title="Hapus Author"
+                    >
+                      <i className="bi bi-trash3"></i>
+                      <span>Hapus</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -206,17 +293,17 @@ function ManageAuthors() {
         )}
       </div>
 
-      {/* Modal Create Author */}
+      {/* Modal Create & Update Author */}
       {showModal && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 border-0 shadow">
               <div className="modal-header border-bottom px-4 pt-4">
                 <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-                  <span className="p-2 bg-success bg-opacity-10 text-success rounded-3">
-                    <i className="bi bi-person-plus-fill"></i>
+                  <span className={`p-2 bg-${modalMode === 'create' ? 'success' : 'warning'} bg-opacity-10 text-${modalMode === 'create' ? 'success' : 'dark'} rounded-3`}>
+                    <i className={`bi ${modalMode === 'create' ? 'bi-person-plus-fill' : 'bi-pencil-square'}`}></i>
                   </span>
-                  <span>Tambah Author Baru</span>
+                  <span>{modalMode === 'create' ? 'Tambah Author Baru' : 'Perbarui (Update) Author'}</span>
                 </h5>
                 <button
                   type="button"
@@ -270,7 +357,7 @@ function ManageAuthors() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label fw-semibold">Spesialisasi / Genre Utama</label>
+                    <label className="form-label fw-semibold">Spesialisasi / Bidang Utama</label>
                     <input
                       type="text"
                       className="form-control"
@@ -292,7 +379,7 @@ function ManageAuthors() {
                       onChange={handleInputChange}
                     />
                     <small className="text-muted" style={{ fontSize: '11px' }}>
-                      Kosongkan bila ingin menggunakan foto default profil.
+                      Kosongkan bila ingin menggunakan foto avatar default.
                     </small>
                   </div>
 
@@ -317,11 +404,50 @@ function ManageAuthors() {
                   >
                     Batal
                   </button>
-                  <button type="submit" className="btn btn-success rounded-pill px-4 shadow-sm">
-                    <i className="bi bi-save me-1"></i> Simpan Author
+                  <button
+                    type="submit"
+                    className={`btn btn-${modalMode === 'create' ? 'success' : 'warning'} rounded-pill px-4 shadow-sm fw-semibold`}
+                  >
+                    <i className={`bi ${modalMode === 'create' ? 'bi-save' : 'bi-check2-circle'} me-1`}></i>
+                    {modalMode === 'create' ? 'Simpan Author' : 'Simpan Perubahan'}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Delete Author */}
+      {showDeleteModal && selectedAuthor && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow">
+              <div className="modal-body p-4 text-center">
+                <div className="p-3 bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex mb-3">
+                  <i className="bi bi-person-x-fill fs-1"></i>
+                </div>
+                <h5 className="fw-bold text-dark mb-2">Konfirmasi Hapus Author</h5>
+                <p className="text-muted small mb-4">
+                  Apakah Anda yakin ingin menghapus data author <strong>"{selectedAuthor.name}"</strong>? Data yang dihapus tidak dapat dipulihkan kembali.
+                </p>
+                <div className="d-flex justify-content-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-secondary rounded-pill px-4"
+                    onClick={() => setShowDeleteModal(false)}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger rounded-pill px-4 shadow-sm"
+                    onClick={handleConfirmDelete}
+                  >
+                    <i className="bi bi-trash3 me-1"></i> Ya, Hapus Data
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

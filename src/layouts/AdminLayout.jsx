@@ -7,13 +7,34 @@ function AdminLayout() {
   const [genres, setGenres] = useState(initialGenres);
   const [authors, setAuthors] = useState(initialAuthors);
 
-  // Create handlers
+  // Genre CRUD handlers
   const addGenre = (newGenre) => {
     setGenres((prev) => [newGenre, ...prev]);
   };
 
+  const updateGenre = (updatedGenre) => {
+    setGenres((prev) =>
+      prev.map((g) => (g.id === updatedGenre.id ? { ...g, ...updatedGenre } : g))
+    );
+  };
+
+  const deleteGenre = (genreId) => {
+    setGenres((prev) => prev.filter((g) => g.id !== genreId));
+  };
+
+  // Author CRUD handlers
   const addAuthor = (newAuthor) => {
     setAuthors((prev) => [newAuthor, ...prev]);
+  };
+
+  const updateAuthor = (updatedAuthor) => {
+    setAuthors((prev) =>
+      prev.map((a) => (a.id === updatedAuthor.id ? { ...a, ...updatedAuthor } : a))
+    );
+  };
+
+  const deleteAuthor = (authorId) => {
+    setAuthors((prev) => prev.filter((a) => a.id !== authorId));
   };
 
   return (
@@ -114,7 +135,20 @@ function AdminLayout() {
 
           {/* Dynamic Content Area */}
           <div className="col-12 col-md-9 col-xl-10">
-            <Outlet context={{ genres, setGenres, addGenre, authors, setAuthors, addAuthor }} />
+            <Outlet
+              context={{
+                genres,
+                setGenres,
+                addGenre,
+                updateGenre,
+                deleteGenre,
+                authors,
+                setAuthors,
+                addAuthor,
+                updateAuthor,
+                deleteAuthor
+              }}
+            />
           </div>
         </div>
       </div>

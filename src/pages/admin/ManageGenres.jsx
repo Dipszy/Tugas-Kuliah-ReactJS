@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 
 function ManageGenres() {
-  const { genres, addGenre } = useOutletContext();
+  const { genres, addGenre, updateGenre, deleteGenre } = useOutletContext();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit'
   const [showModal, setShowModal] = useState(false);
-  const [successAlert, setSuccessAlert] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [alertInfo, setAlertInfo] = useState({ show: false, message: '', type: 'success' });
 
-  // Form State for creating new genre
+  // Form State for create/edit genre
   const [formData, setFormData] = useState({
+    id: null,
     name: '',
     slug: '',
     description: '',
@@ -17,10 +21,60 @@ function ManageGenres() {
     bookCount: 0
   });
 
+  const showAlert = (message, type = 'success') => {
+    setAlertInfo({ show: true, message, type });
+    setTimeout(() => {
+      setAlertInfo({ show: false, message: '', type: 'success' });
+    }, 3500);
+  };
+
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setModalMode('create');
+    setFormData({
+      id: null,
+      name: '',
+      slug: '',
+      description: '',
+      color: 'primary',
+      bookCount: 0
+    });
+    setShowModal(true);
+  };
+
+  // Open Edit Modal
+  const handleOpenEdit = (genre) => {
+    setModalMode('edit');
+    setFormData({
+      id: genre.id,
+      name: genre.name,
+      slug: genre.slug,
+      description: genre.description,
+      color: genre.color || 'primary',
+      bookCount: genre.bookCount || 0
+    });
+    setShowModal(true);
+  };
+
+  // Open Delete Confirmation Modal
+  const handleOpenDelete = (genre) => {
+    setSelectedGenre(genre);
+    setShowDeleteModal(true);
+  };
+
+  // Confirm Delete Action
+  const handleConfirmDelete = () => {
+    if (selectedGenre) {
+      deleteGenre(selectedGenre.id);
+      setShowDeleteModal(false);
+      showAlert(`Genre "${selectedGenre.name}" berhasil dihapus dari sistem!`, 'danger');
+      setSelectedGenre(null);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'name') {
-      // Auto generate slug from name if slug isn't manually edited
+    if (name === 'name' && modalMode === 'create') {
       const autoSlug = value
         .toLowerCase()
         .trim()
@@ -46,28 +100,32 @@ function ManageGenres() {
       return;
     }
 
-    const newGenre = {
-      id: Date.now(),
-      name: formData.name.trim(),
-      slug: formData.slug.trim() || formData.name.toLowerCase().replace(/\s+/g, '-'),
-      description: formData.description.trim() || 'Deskripsi genre belum ditambahkan.',
-      color: formData.color || 'primary',
-      bookCount: parseInt(formData.bookCount, 10) || 0
-    };
+    if (modalMode === 'create') {
+      const newGenre = {
+        id: Date.now(),
+        name: formData.name.trim(),
+        slug: formData.slug.trim() || formData.name.toLowerCase().replace(/\s+/g, '-'),
+        description: formData.description.trim() || 'Deskripsi genre belum ditambahkan.',
+        color: formData.color || 'primary',
+        bookCount: parseInt(formData.bookCount, 10) || 0
+      };
+      addGenre(newGenre);
+      showAlert(`Genre "${newGenre.name}" berhasil ditambahkan!`, 'success');
+    } else {
+      // Edit / Update mode
+      const updated = {
+        id: formData.id,
+        name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        color: formData.color,
+        bookCount: parseInt(formData.bookCount, 10) || 0
+      };
+      updateGenre(updated);
+      showAlert(`Data genre "${updated.name}" berhasil diperbarui!`, 'info');
+    }
 
-    addGenre(newGenre);
-
-    // Reset & close
-    setFormData({
-      name: '',
-      slug: '',
-      description: '',
-      color: 'primary',
-      bookCount: 0
-    });
     setShowModal(false);
-    setSuccessAlert(true);
-    setTimeout(() => setSuccessAlert(false), 3000);
   };
 
   // Filter genres based on search
@@ -86,13 +144,13 @@ function ManageGenres() {
           <div>
             <div className="d-flex align-items-center gap-2 mb-1">
               <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-semibold small">
-                Master Data
+                CRUD Genre Master
               </span>
               <span className="text-muted small">Total: {genres.length} Genre</span>
             </div>
             <h3 className="fw-bold text-dark mb-1">Manajemen Genre Buku</h3>
             <p className="text-muted mb-0 small">
-              Lihat (Read) katalog genre buku dan tambahkan (Create) genre baru ke dalam sistem toko.
+              Kelola data genre buku secara lengkap: <strong>Create</strong>, <strong>Read</strong>, <strong>Update</strong>, dan <strong>Delete</strong>.
             </p>
           </div>
 
@@ -100,7 +158,7 @@ function ManageGenres() {
             <button
               type="button"
               className="btn btn-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2"
-              onClick={() => setShowModal(true)}
+              onClick={handleOpenCreate}
             >
               <i className="bi bi-plus-circle-fill"></i>
               <span>Tambah Genre Baru</span>
@@ -109,16 +167,29 @@ function ManageGenres() {
         </div>
       </div>
 
-      {/* Success Notification Alert */}
-      {successAlert && (
-        <div className="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+      {/* Alert Notification */}
+      {alertInfo.show && (
+        <div
+          className={`alert alert-${alertInfo.type} alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4`}
+          role="alert"
+        >
           <div className="d-flex align-items-center gap-2">
-            <i className="bi bi-check-circle-fill fs-5 text-success"></i>
-            <div>
-              <strong>Berhasil Menambahkan Genre!</strong> Data genre baru telah berhasil disimpan dan ditampilkan.
-            </div>
+            <i
+              className={`bi ${
+                alertInfo.type === 'danger'
+                  ? 'bi-trash3-fill'
+                  : alertInfo.type === 'info'
+                  ? 'bi-check-circle-fill'
+                  : 'bi-check-circle-fill'
+              } fs-5`}
+            ></i>
+            <div>{alertInfo.message}</div>
           </div>
-          <button type="button" className="btn-close" onClick={() => setSuccessAlert(false)}></button>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setAlertInfo({ show: false, message: '', type: 'success' })}
+          ></button>
         </div>
       )}
 
@@ -154,7 +225,7 @@ function ManageGenres() {
         </div>
       </div>
 
-      {/* Genre Grid (Cards View) */}
+      {/* Genre Grid (Cards View with Update & Delete Controls) */}
       <div className="row g-4 mb-4">
         {filteredGenres.length === 0 ? (
           <div className="col-12">
@@ -186,16 +257,29 @@ function ManageGenres() {
                 <code className="text-muted small mb-2 d-inline-block">#{genre.slug}</code>
                 <p className="text-muted small flex-grow-1 mb-3">{genre.description}</p>
 
+                {/* Actions Row: Update & Delete */}
                 <div className="pt-3 border-top mt-auto d-flex justify-content-between align-items-center">
                   <span className="small text-muted">
                     <i className="bi bi-hash me-1"></i> ID: {genre.id}
                   </span>
-                  <button
-                    className="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                    onClick={() => alert(`Info Genre: ${genre.name} (${genre.slug})`)}
-                  >
-                    <i className="bi bi-info-circle me-1"></i> Detail
-                  </button>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-sm btn-outline-primary rounded-pill px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleOpenEdit(genre)}
+                      title="Edit Data Genre"
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-danger rounded-pill px-3 d-flex align-items-center gap-1"
+                      onClick={() => handleOpenDelete(genre)}
+                      title="Hapus Genre"
+                    >
+                      <i className="bi bi-trash3"></i>
+                      <span>Hapus</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,17 +287,17 @@ function ManageGenres() {
         )}
       </div>
 
-      {/* Modal Create Genre */}
+      {/* Modal Create & Update Genre */}
       {showModal && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 border-0 shadow">
               <div className="modal-header border-bottom px-4 pt-4">
                 <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-                  <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
-                    <i className="bi bi-tag-fill"></i>
+                  <span className={`p-2 bg-${modalMode === 'create' ? 'primary' : 'warning'} bg-opacity-10 text-${modalMode === 'create' ? 'primary' : 'dark'} rounded-3`}>
+                    <i className={`bi ${modalMode === 'create' ? 'bi-tag-fill' : 'bi-pencil-square'}`}></i>
                   </span>
-                  <span>Tambah Genre Baru</span>
+                  <span>{modalMode === 'create' ? 'Tambah Genre Baru' : 'Perbarui (Update) Genre'}</span>
                 </h5>
                 <button
                   type="button"
@@ -304,11 +388,50 @@ function ManageGenres() {
                   >
                     Batal
                   </button>
-                  <button type="submit" className="btn btn-primary rounded-pill px-4 shadow-sm">
-                    <i className="bi bi-save me-1"></i> Simpan Genre
+                  <button
+                    type="submit"
+                    className={`btn btn-${modalMode === 'create' ? 'primary' : 'warning'} rounded-pill px-4 shadow-sm fw-semibold`}
+                  >
+                    <i className={`bi ${modalMode === 'create' ? 'bi-save' : 'bi-check2-circle'} me-1`}></i>
+                    {modalMode === 'create' ? 'Simpan Genre' : 'Simpan Perubahan'}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Delete Genre */}
+      {showDeleteModal && selectedGenre && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow">
+              <div className="modal-body p-4 text-center">
+                <div className="p-3 bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex mb-3">
+                  <i className="bi bi-exclamation-triangle-fill fs-1"></i>
+                </div>
+                <h5 className="fw-bold text-dark mb-2">Konfirmasi Hapus Genre</h5>
+                <p className="text-muted small mb-4">
+                  Apakah Anda yakin ingin menghapus genre <strong>"{selectedGenre.name}"</strong>? Data yang dihapus tidak dapat dipulihkan kembali.
+                </p>
+                <div className="d-flex justify-content-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-secondary rounded-pill px-4"
+                    onClick={() => setShowDeleteModal(false)}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger rounded-pill px-4 shadow-sm"
+                    onClick={handleConfirmDelete}
+                  >
+                    <i className="bi bi-trash3 me-1"></i> Ya, Hapus Data
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
