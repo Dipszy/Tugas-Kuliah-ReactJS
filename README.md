@@ -34,6 +34,25 @@ Implementasi fitur pendaftaran akun pengguna baru (*User Registration*) yang mod
 
 ---
 
+## 📸 Tangkapan Layar (Screenshots Hasil Fitur)
+
+### 1. Tampilan Utama Halaman Registrasi (`/register`)
+![Halaman Registrasi](screenshots/pertemuan3-registrasi-halaman-utama.png)
+
+### 2. Pengujian Validasi Form Error (Field Kosong / Invalid)
+![Validasi Error](screenshots/pertemuan3-registrasi-validasi-error.png)
+
+### 3. Password Strength Meter Realtime & Form Terisi
+![Password Strength Meter](screenshots/pertemuan3-registrasi-password-strength.png)
+
+### 4. Modal Popup Registrasi Berhasil
+![Modal Sukses](screenshots/pertemuan3-registrasi-modal-sukses.png)
+
+### 5. Tombol "Daftar" pada Navbar Terhubung ke Rute `/register`
+![Navbar Beranda](screenshots/pertemuan3-navbar-beranda.png)
+
+---
+
 ## 📁 Struktur Komponen
 ```text
 src/
@@ -59,19 +78,15 @@ src/
 ## 🚀 Cara Menjalankan Proyek di Lokal
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/Dipszy/Tugas-Kuliah-ReactJS.git
+   git clone -b React-Lanjutan-3 https://github.com/Dipszy/Tugas-Kuliah-ReactJS.git
    cd Tugas-Kuliah-ReactJS
    ```
-2. **Pindah ke branch `React-Lanjutan-3`:**
-   ```bash
-   git checkout React-Lanjutan-3
-   ```
-3. **Instal dependensi:**
+2. **Instal dependensi:**
    ```bash
    npm install
    ```
-4. **Jalankan development server:**
+3. **Jalankan development server:**
    ```bash
    npm run dev
    ```
-5. Buka tautan lokal yang tampil di terminal (biasanya `http://localhost:5173/` atau `http://localhost:5173/register`).
+4. Buka peramban di `http://localhost:5173` atau langsung ke `http://localhost:5173/register`.
