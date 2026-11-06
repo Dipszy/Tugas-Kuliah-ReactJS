@@ -95,13 +95,12 @@ function Navbar() {
             >
               Login
             </button>
-            <button 
-              type="button" 
+            <Link 
+              to="/register" 
               className="btn btn-primary rounded-pill px-3 py-2"
-              onClick={() => alert('Fitur Register - Pendaftaran Akun Baru!')}
             >
               Daftar
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import Book from './components/Book';
 import Team from './components/Team';
 import Contact from './components/Contact';
 import NotFound from './components/NotFound';
+import Register from './pages/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageGenres from './pages/admin/ManageGenres';
 import ManageAuthors from './pages/admin/ManageAuthors';
@@ -23,6 +24,7 @@ function App() {
           <Route path="book" element={<Book />} />
           <Route path="team" element={<Team />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="register" element={<Register />} />
         </Route>
 
         {/* =========================================
