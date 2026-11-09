@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3 shadow-sm">
@@ -72,35 +80,73 @@ function Navbar() {
             </li>
           </ul>
 
-          {/* Action buttons */}
+          {/* Action buttons with Role-Based State */}
           <div className="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-            <Link 
-              to="/admin" 
-              className="btn btn-outline-dark rounded-pill px-3 py-2 d-flex align-items-center gap-1 shadow-sm"
-              title="Masuk ke Panel Admin"
-            >
-              <i className="bi bi-shield-lock-fill text-primary"></i>
-              <span className="fw-semibold small">Admin</span>
-            </Link>
+            {/* Tombol Panel Admin HANYA muncul jika pengguna memiliki role admin */}
+            {isAdmin && (
+              <Link 
+                to="/admin" 
+                className="btn btn-outline-dark rounded-pill px-3 py-2 d-flex align-items-center gap-1 shadow-sm"
+                title="Masuk ke Panel Admin"
+              >
+                <i className="bi bi-shield-lock-fill text-primary"></i>
+                <span className="fw-semibold small">Panel Admin</span>
+              </Link>
+            )}
+
             <button className="btn btn-light position-relative rounded-pill px-3 py-2 border">
               <i className="bi bi-cart3 me-1"></i> Keranjang
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 3
               </span>
             </button>
-            <button 
-              type="button" 
-              className="btn btn-outline-primary rounded-pill px-3 py-2"
-              onClick={() => alert('Fitur Login - Silakan masukkan akun Anda!')}
-            >
-              Login
-            </button>
-            <Link 
-              to="/register" 
-              className="btn btn-primary rounded-pill px-3 py-2"
-            >
-              Daftar
-            </Link>
+
+            {/* Kondisi Login: Jika sudah login tampilkan Profil & Logout, jika belum tampilkan Login & Register */}
+            {isAuthenticated ? (
+              <div className="d-flex align-items-center gap-2">
+                <Link 
+                  to="/profile" 
+                  className="btn btn-light rounded-pill px-3 py-2 border d-flex align-items-center gap-2"
+                  title="Lihat Profil Saya"
+                >
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="rounded-circle"
+                    style={{ width: '22px', height: '22px', objectFit: 'cover' }}
+                  />
+                  <span className="small fw-semibold text-dark">{user.name.split(' ')[0]}</span>
+                  <span className={`badge rounded-pill small ${isAdmin ? 'bg-primary' : 'bg-success'}`} style={{ fontSize: '10px' }}>
+                    {user.role}
+                  </span>
+                </Link>
+
+                <button 
+                  type="button" 
+                  className="btn btn-outline-danger btn-sm rounded-circle p-2"
+                  onClick={handleLogout}
+                  title="Keluar (Logout)"
+                  style={{ width: '38px', height: '38px' }}
+                >
+                  <i className="bi bi-box-arrow-right"></i>
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="btn btn-outline-primary rounded-pill px-3 py-2"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="btn btn-primary rounded-pill px-3 py-2"
+                >
+                  Daftar
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

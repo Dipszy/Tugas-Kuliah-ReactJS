@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { NavLink, Link, Outlet } from 'react-router-dom';
+import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import initialGenres from '../utils/genres';
 import initialAuthors from '../utils/authors';
 
 function AdminLayout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const [genres, setGenres] = useState(initialGenres);
   const [authors, setAuthors] = useState(initialAuthors);
 
@@ -54,9 +62,23 @@ function AdminLayout() {
               <i className="bi bi-box-arrow-left me-1"></i> Ke Toko Utama
             </Link>
             <div className="d-flex align-items-center gap-2 text-white ps-2 border-start border-secondary">
-              <span className="badge bg-success rounded-circle p-1"> </span>
-              <span className="small fw-semibold d-none d-sm-inline">Administrator</span>
+              <img
+                src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                alt={user?.name || 'Admin'}
+                className="rounded-circle"
+                style={{ width: '28px', height: '28px', objectFit: 'cover' }}
+              />
+              <span className="small fw-semibold d-none d-sm-inline">{user?.name || 'Administrator'}</span>
+              <span className="badge bg-success rounded-pill small">Admin</span>
             </div>
+            <button
+              type="button"
+              className="btn btn-outline-danger btn-sm rounded-pill px-3"
+              onClick={handleLogout}
+              title="Keluar dari Panel Admin"
+            >
+              <i className="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
           </div>
         </div>
       </nav>
